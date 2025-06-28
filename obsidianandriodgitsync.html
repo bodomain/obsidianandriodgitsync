@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsidian & GitHub Sync Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Tech Neutral -->
+    <!-- Application Structure Plan: The application is structured as a user-decision journey, not a linear report. It starts with the 'Why', moves to an interactive 'Chooser' to guide users to a suitable method, provides a 'Deep Dive' into each method via tabs, offers a 'Comparative Analysis' with a radar chart for quick visual comparison, and concludes with 'Best Practices'. This task-oriented flow is designed to help users quickly identify and understand the best sync solution for them, which is more effective for a web app than the report's original linear structure. -->
+    <!-- Visualization & Content Choices: Report data is transformed for interactivity. The core decision-making process is captured in an interactive "Chooser" (HTML/JS) that provides a recommendation. The comparison table is converted into a dynamic Chart.js Radar Chart (Goal: Compare -> Viz: Radar Chart -> Interaction: Hover for details) for a more intuitive visual summary. Complex setup processes are simplified into HTML/CSS flow diagrams within tabs (Goal: Organize -> Viz: HTML/CSS Diagram -> Interaction: Tab selection), making them easier to follow. This approach, avoiding SVG/Mermaid, prioritizes user engagement and comprehension over static text. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #334155; /* slate-700 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0ea5e9; /* sky-500 */
+            border-bottom-color: #0ea5e9; /* sky-500 */
+        }
+        .btn {
+            transition: all 0.3s;
+        }
+        .tab.active {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+        }
+        .flow-step {
+            border-left: 2px dashed #94a3b8; /* slate-400 */
+            position: relative;
+        }
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: -9px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border-radius: 9999px;
+            background-color: white;
+            border: 2px solid #0ea5e9; /* sky-500 */
+        }
+        .flow-step:first-child {
+            border-left: 2px solid transparent;
+        }
+        .flow-step:first-child::before {
+             background-color: #0ea5e9; /* sky-500 */
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-xl font-bold text-slate-800">Obsidian Sync Guide</h1>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#why-git" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Why Git?</a>
+                    <a href="#chooser" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Chooser</a>
+                    <a href="#methods" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Methods</a>
+                    <a href="#compare" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Compare</a>
+                    <a href="#practices" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Practices</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <section id="hero" class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Sync Your Obsidian Vault with Git</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">
+                An interactive guide to mastering cross-device synchronization for your Obsidian notes using the power of Git and GitHub, with a special focus on Android.
+            </p>
+        </section>
+
+        <section id="why-git" class="mb-16">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-800">Why Choose Git for Your Vault?</h3>
+            <p class="text-center text-slate-500 mb-8">Git offers more than just syncing; it provides a robust system for managing your notes.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4 text-sky-500">🔀</div>
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Complete Version History</h4>
+                    <p class="text-slate-600">Track every single change, revert to any previous version of a note, and never worry about losing work. Git acts as a safety net for your ideas.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4 text-sky-500">💰</div>
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Free & Open Source</h4>
+                    <p class="text-slate-600">Avoid recurring subscription fees. Setting up your sync with GitHub is completely free for private repositories, offering a powerful, cost-effective solution.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4 text-sky-500">🔐</div>
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Full Data Ownership</h4>
+                    <p class="text-slate-600">Your notes are your own. By self-hosting your vault on GitHub, you retain full control and ownership of your data, independent of any proprietary service.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="chooser" class="mb-16 bg-white p-8 rounded-lg shadow-lg">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-800">Find Your Perfect Android Sync Method</h3>
+            <p class="text-center text-slate-500 mb-8">Answer these questions to get a personalized recommendation for your Android device.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div id="questions">
+                    <div class="mb-6">
+                        <label class="block font-semibold mb-2 text-slate-700">1. How comfortable are you with the command-line (CLI)?</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="techComfort" value="high" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">Very comfortable. I use it regularly.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="techComfort" value="medium" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">I prefer a GUI, but can use the CLI if needed.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="techComfort" value="low" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">I strictly prefer graphical interfaces (GUI).</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-2 text-slate-700">2. What level of automation do you need?</label>
+                         <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="automation" value="high" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">Fully automated. I want it to sync in the background without any action from me.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="automation" value="medium" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">Semi-automated is fine (e.g., sync on app open/close).</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="automation" value="low" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">I don't mind manually triggering sync with a button press.</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="recommendation-container" class="bg-slate-50 p-6 rounded-lg flex flex-col justify-center items-center text-center">
+                    <div id="recommendation-placeholder">
+                        <div class="text-4xl mb-4">🤔</div>
+                        <h4 class="text-xl font-bold text-slate-800">Awaiting your answers...</h4>
+                        <p class="text-slate-600">Your recommendation will appear here.</p>
+                    </div>
+                    <div id="recommendation-result" class="hidden">
+                        <h4 class="text-xl font-bold mb-2 text-slate-800">Your Recommended Method:</h4>
+                        <p id="recommendation-title" class="text-2xl font-bold text-sky-600 mb-2"></p>
+                        <p id="recommendation-description" class="text-slate-600 mb-4"></p>
+                        <a href="#methods" id="recommendation-link" class="btn bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="methods" class="mb-16">
+            <h3 class="text-3xl font-bold text-center mb-8 text-slate-800">Android Sync Methods: A Deep Dive</h3>
+            <div class="flex justify-center mb-8 border-b border-slate-200">
+                 <button data-tab="termux" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none active">Termux + Tasker</button>
+                 <button data-tab="clients" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none">Git Clients</button>
+                 <button data-tab="plugin" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none">Obsidian Git Plugin</button>
+                 <button data-tab="api" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none">"Gitless" Plugin</button>
+            </div>
+
+            <div id="tab-content" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                <div id="termux-content" class="tab-pane">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 1: Termux + Git + SSH + Tasker</h4>
+                    <p class="mb-6 text-slate-600">The most powerful and robust solution for fully automated background syncing on Android. It leverages a Linux-like terminal environment to run native Git.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Tech-savvy users who want maximum control and 'set-and-forget' automation.</p>
+                           <p class="mt-2"><strong>Pros:</strong> Full native Git power, highly reliable, fully customizable background automation (on app open/close, scheduled).</p>
+                           <p class="mt-2"><strong>Cons:</strong> High setup complexity, requires multiple apps (Termux, Tasker from F-Droid), steep learning curve.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                                <div class="flow-step pl-8 pb-4"><strong>Install Apps:</strong> Get Termux, Termux:Tasker, and Termux:API from F-Droid.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Setup Termux:</strong> Grant storage access and install git & openssh packages.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure SSH:</strong> Generate an SSH key in Termux and add the public key to your GitHub account.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Clone Vault:</strong> Use `git clone` in Termux to download your vault to your device.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Automate with Tasker:</strong> Import a pre-made Tasker project to trigger sync scripts on events like opening or closing the Obsidian app.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="clients-content" class="tab-pane hidden">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 2: Dedicated Android Git Clients (MGit/PuppyGit)</h4>
+                    <p class="mb-6 text-slate-600">A user-friendly alternative to the command line, offering a graphical interface for Git operations with varying degrees of automation.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Users who prefer a GUI and want a simpler setup than Termux, with good automation options (especially PuppyGit).</p>
+                           <p class="mt-2"><strong>Pros:</strong> GUI-driven and easier to set up. PuppyGit offers good automation (sync on app open/close). No command line needed for daily use.</p>
+                           <p class="mt-2"><strong>Cons:</strong> MGit is mostly manual (requires button presses to sync). Less powerful than the full Termux setup.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                                <div class="flow-step pl-8 pb-4"><strong>Install App:</strong> Get PuppyGit or MGit from F-Droid/Play Store.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Clone/Import Vault:</strong> Use the app's GUI to clone your remote repository or import an existing local one.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure Auth:</strong> Add your SSH key or a GitHub Personal Access Token in the app's settings.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure Automation (PuppyGit):</strong> Enable the accessibility service to allow automated pull/push when Obsidian starts or stops.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Sync Manually (MGit):</strong> Open the app and use the pull/push buttons to sync your vault as needed.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="plugin-content" class="tab-pane hidden">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 3: Obsidian Git Plugin on Mobile</h4>
+                    <p class="mb-6 text-slate-600">Uses the built-in community plugin to sync. While convenient on desktop, it's highly experimental and unstable on mobile devices.</p>
+                     <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Users with very small vaults who are willing to tolerate instability for the sake of an all-in-one solution. Generally NOT recommended for serious use on Android.</p>
+                           <p class="mt-2"><strong>Pros:</strong> Easiest setup, as it's just a plugin. All operations are inside Obsidian.</p>
+                           <p class="mt-2"><strong>Cons:</strong> Officially "very unstable" on mobile. Poor performance with larger vaults, frequent crashes, and sync failures. Relies on a less efficient JS-based Git implementation.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                               <div class="flow-step pl-8 pb-4"><strong>Clone Vault:</strong> First, clone your vault onto your device using another method (like a Git client).</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Install Plugin:</strong> In Obsidian mobile, go to Community Plugins and install "Obsidian Git".</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Configure Auth:</strong> Enter your GitHub username and a Personal Access Token in the plugin settings.</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Sync:</strong> Use the command palette or toolbar icons within Obsidian to pull and push changes. Auto-sync is unreliable.</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Troubleshoot:</strong> Be prepared for the plugin to fail, requiring you to use a more reliable method as a backup.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="api-content" class="tab-pane hidden">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 4: "Gitless" (GitHub REST API) Plugin</h4>
+                    <p class="mb-6 text-slate-600">An emerging alternative that syncs directly with GitHub's API, completely bypassing the need for a local Git installation.</p>
+                     <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Users who want a simple, GitHub-only solution and have small vaults. A promising but still new and potentially limited option.</p>
+                           <p class="mt-2"><strong>Pros:</strong> Very simple setup, no Git installation needed at all. Potentially more stable than the Obsidian Git plugin on mobile.</p>
+                           <p class="mt-2"><strong>Cons:</strong> In beta, limited to GitHub only. Subject to API rate limits and file size restrictions (e.g., ~7MB file limit) that could be an issue for larger vaults.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                                <div class="flow-step pl-8 pb-4"><strong>Install Plugin:</strong> Find and install the API-based sync plugin via the community plugins browser in Obsidian.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure Auth:</strong> Generate a GitHub Personal Access Token and enter it into the plugin's settings.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Link Repository:</strong> Enter the username and repository name you want to sync with.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Sync:</strong> The plugin will handle syncing in the background using API calls.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="compare" class="mb-16">
+            <h3 class="text-3xl font-bold text-center mb-8 text-slate-800">Comparative Analysis</h3>
+             <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                <div class="chart-container">
+                    <canvas id="methodComparisonChart"></canvas>
+                </div>
+                <p class="text-center text-sm text-slate-500 mt-4">Hover over the points on the chart for more details. Higher scores are better (except for Setup Complexity).</p>
+            </div>
+        </section>
+
+        <section id="practices">
+            <h3 class="text-3xl font-bold text-center mb-8 text-slate-800">Essential Best Practices</h3>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Handle Merge Conflicts</h4>
+                    <p class="text-slate-600">Pull changes frequently before you start working. Add `*.md merge=union` to a `.gitattributes` file in your vault's root. This tells Git to automatically merge most note changes, saving you from manual fixes.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Manage the `.obsidian` folder</h4>
+                    <p class="text-slate-600">This folder stores settings. To avoid conflicts, add device-specific files like `workspace.json`, `workspace-mobile.json`, and `plugins/obsidian-git/data.json` to your `.gitignore` file. This lets you have different layouts and plugins active on desktop vs. mobile.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Prioritize Security</h4>
+                    <p class="text-slate-600">Use SSH keys over Personal Access Tokens (PATs) for better security. Protect your SSH key with a strong passphrase. Always enable Two-Factor Authentication (2FA) on your GitHub account to add a critical layer of protection.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-16">
+        <div class="container mx-auto px-4 py-6 text-center">
+            <p>Interactive Guide created based on community research and best practices.</p>
+            <p class="text-sm text-slate-400 mt-1">This is not an official Obsidian or GitHub resource.</p>
+        </div>
+    </footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const chartData = {
+        labels: ['Reliability', 'Performance', 'Full Automation', 'Ease of Use', 'Low Complexity'],
+        datasets: [
+            {
+                label: 'Termux + Tasker',
+                data: [5, 5, 5, 2, 1],
+                fill: true,
+                backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                borderColor: 'rgb(14, 165, 233)',
+                pointBackgroundColor: 'rgb(14, 165, 233)',
+            },
+            {
+                label: 'PuppyGit Client',
+                data: [4, 4, 4, 4, 3],
+                fill: true,
+                backgroundColor: 'rgba(234, 179, 8, 0.2)',
+                borderColor: 'rgb(234, 179, 8)',
+                pointBackgroundColor: 'rgb(234, 179, 8)',
+            },
+             {
+                label: 'Obsidian Git Plugin',
+                data: [1, 1, 2, 3, 4],
+                fill: true,
+                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                borderColor: 'rgb(239, 68, 68)',
+                pointBackgroundColor: 'rgb(239, 68, 68)',
+            }
+        ]
+    };
+
+    const chartConfig = {
+        type: 'radar',
+        data: chartData,
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#e2e8f0' },
+                    grid: { color: '#e2e8f0' },
+                    pointLabels: {
+                        font: { size: 14, weight: 'bold' },
+                        color: '#475569'
+                    },
+                    ticks: {
+                        backdropColor: '#f8fafc',
+                        color: '#64748b',
+                        stepSize: 1
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 5
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#334155' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.r !== null) {
+                                label += context.parsed.r + '/5';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    
+    const ctx = document.getElementById('methodComparisonChart').getContext('2d');
+    new Chart(ctx, chartConfig);
+
+
+    const tabs = document.querySelectorAll('.tab');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(item => item.classList.remove('active'));
+            tab.classList.add('active');
+
+            const target = tab.getAttribute('data-tab');
+            tabPanes.forEach(pane => {
+                if (pane.id === `${target}-content`) {
+                    pane.classList.remove('hidden');
+                } else {
+                    pane.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+    const questions = document.getElementById('questions');
+    const recommendationPlaceholder = document.getElementById('recommendation-placeholder');
+    const recommendationResult = document.getElementById('recommendation-result');
+    const recommendationTitle = document.getElementById('recommendation-title');
+    const recommendationDescription = document.getElementById('recommendation-description');
+
+    const recommendations = {
+        termux: {
+            title: 'Termux + Tasker',
+            description: 'This is the most powerful and reliable method. It requires command-line knowledge but provides unparalleled background automation.'
+        },
+        clients: {
+            title: 'Dedicated Git Client (PuppyGit)',
+            description: 'A great balance of ease-of-use and power. PuppyGit provides good automation through a graphical interface, making it much simpler than Termux.'
+        },
+        plugin: {
+            title: 'Obsidian Git Plugin',
+            description: 'The simplest to set up, but also the most unstable on mobile. Recommended only for experiments or very small vaults where reliability is not critical.'
+        }
+    };
+
+    questions.addEventListener('change', () => {
+        const techComfort = document.querySelector('input[name="techComfort"]:checked');
+        const automation = document.querySelector('input[name="automation"]:checked');
+
+        if (techComfort && automation) {
+            let recommendedMethod;
+
+            if (techComfort.value === 'high' || automation.value === 'high') {
+                recommendedMethod = 'termux';
+            } else if (techComfort.value === 'medium' && automation.value === 'medium') {
+                recommendedMethod = 'clients';
+            } else if (techComfort.value === 'low' && automation.value === 'low') {
+                recommendedMethod = 'clients';
+            } else if (techComfort.value === 'medium' || automation.value === 'medium'){
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsidian & GitHub Sync Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Tech Neutral -->
+    <!-- Application Structure Plan: The application is structured as a user-decision journey, not a linear report. It starts with the 'Why', moves to an interactive 'Chooser' to guide users to a suitable method, provides a 'Deep Dive' into each method via tabs, offers a 'Comparative Analysis' with a radar chart for quick visual comparison, and concludes with 'Best Practices'. This task-oriented flow is designed to help users quickly identify and understand the best sync solution for them, which is more effective for a web app than the report's original linear structure. -->
+    <!-- Visualization & Content Choices: Report data is transformed for interactivity. The core decision-making process is captured in an interactive "Chooser" (HTML/JS) that provides a recommendation. The comparison table is converted into a dynamic Chart.js Radar Chart (Goal: Compare -> Viz: Radar Chart -> Interaction: Hover for details) for a more intuitive visual summary. Complex setup processes are simplified into HTML/CSS flow diagrams within tabs (Goal: Organize -> Viz: HTML/CSS Diagram -> Interaction: Tab selection), making them easier to follow. This approach, avoiding SVG/Mermaid, prioritizes user engagement and comprehension over static text. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #334155; /* slate-700 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0ea5e9; /* sky-500 */
+            border-bottom-color: #0ea5e9; /* sky-500 */
+        }
+        .btn {
+            transition: all 0.3s;
+        }
+        .tab.active {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+        }
+        .flow-step {
+            border-left: 2px dashed #94a3b8; /* slate-400 */
+            position: relative;
+        }
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: -9px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border-radius: 9999px;
+            background-color: white;
+            border: 2px solid #0ea5e9; /* sky-500 */
+        }
+        .flow-step:first-child {
+            border-left: 2px solid transparent;
+        }
+        .flow-step:first-child::before {
+             background-color: #0ea5e9; /* sky-500 */
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-xl font-bold text-slate-800">Obsidian Sync Guide</h1>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#why-git" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Why Git?</a>
+                    <a href="#chooser" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Chooser</a>
+                    <a href="#methods" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Methods</a>
+                    <a href="#compare" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Compare</a>
+                    <a href="#practices" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Practices</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <section id="hero" class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Sync Your Obsidian Vault with Git</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">
+                An interactive guide to mastering cross-device synchronization for your Obsidian notes using the power of Git and GitHub, with a special focus on Android.
+            </p>
+        </section>
+
+        <section id="why-git" class="mb-16">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-800">Why Choose Git for Your Vault?</h3>
+            <p class="text-center text-slate-500 mb-8">Git offers more than just syncing; it provides a robust system for managing your notes.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4 text-sky-500">🔀</div>
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Complete Version History</h4>
+                    <p class="text-slate-600">Track every single change, revert to any previous version of a note, and never worry about losing work. Git acts as a safety net for your ideas.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4 text-sky-500">💰</div>
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Free & Open Source</h4>
+                    <p class="text-slate-600">Avoid recurring subscription fees. Setting up your sync with GitHub is completely free for private repositories, offering a powerful, cost-effective solution.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4 text-sky-500">🔐</div>
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Full Data Ownership</h4>
+                    <p class="text-slate-600">Your notes are your own. By self-hosting your vault on GitHub, you retain full control and ownership of your data, independent of any proprietary service.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="chooser" class="mb-16 bg-white p-8 rounded-lg shadow-lg">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-800">Find Your Perfect Android Sync Method</h3>
+            <p class="text-center text-slate-500 mb-8">Answer these questions to get a personalized recommendation for your Android device.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div id="questions">
+                    <div class="mb-6">
+                        <label class="block font-semibold mb-2 text-slate-700">1. How comfortable are you with the command-line (CLI)?</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="techComfort" value="high" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">Very comfortable. I use it regularly.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="techComfort" value="medium" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">I prefer a GUI, but can use the CLI if needed.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="techComfort" value="low" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">I strictly prefer graphical interfaces (GUI).</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-2 text-slate-700">2. What level of automation do you need?</label>
+                         <div class="space-y-2">
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="automation" value="high" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">Fully automated. I want it to sync in the background without any action from me.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="automation" value="medium" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">Semi-automated is fine (e.g., sync on app open/close).</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-100 rounded-md cursor-pointer hover:bg-slate-200">
+                                <input type="radio" name="automation" value="low" class="form-radio h-4 w-4 text-sky-600">
+                                <span class="ml-3 text-slate-800">I don't mind manually triggering sync with a button press.</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="recommendation-container" class="bg-slate-50 p-6 rounded-lg flex flex-col justify-center items-center text-center">
+                    <div id="recommendation-placeholder">
+                        <div class="text-4xl mb-4">🤔</div>
+                        <h4 class="text-xl font-bold text-slate-800">Awaiting your answers...</h4>
+                        <p class="text-slate-600">Your recommendation will appear here.</p>
+                    </div>
+                    <div id="recommendation-result" class="hidden">
+                        <h4 class="text-xl font-bold mb-2 text-slate-800">Your Recommended Method:</h4>
+                        <p id="recommendation-title" class="text-2xl font-bold text-sky-600 mb-2"></p>
+                        <p id="recommendation-description" class="text-slate-600 mb-4"></p>
+                        <a href="#methods" id="recommendation-link" class="btn bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="methods" class="mb-16">
+            <h3 class="text-3xl font-bold text-center mb-8 text-slate-800">Android Sync Methods: A Deep Dive</h3>
+            <div class="flex justify-center mb-8 border-b border-slate-200">
+                 <button data-tab="termux" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none active">Termux + Tasker</button>
+                 <button data-tab="clients" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none">Git Clients</button>
+                 <button data-tab="plugin" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none">Obsidian Git Plugin</button>
+                 <button data-tab="api" class="tab py-2 px-4 -mb-px border-b-2 font-semibold text-slate-600 hover:text-sky-500 focus:outline-none">"Gitless" Plugin</button>
+            </div>
+
+            <div id="tab-content" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                <div id="termux-content" class="tab-pane">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 1: Termux + Git + SSH + Tasker</h4>
+                    <p class="mb-6 text-slate-600">The most powerful and robust solution for fully automated background syncing on Android. It leverages a Linux-like terminal environment to run native Git.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Tech-savvy users who want maximum control and 'set-and-forget' automation.</p>
+                           <p class="mt-2"><strong>Pros:</strong> Full native Git power, highly reliable, fully customizable background automation (on app open/close, scheduled).</p>
+                           <p class="mt-2"><strong>Cons:</strong> High setup complexity, requires multiple apps (Termux, Tasker from F-Droid), steep learning curve.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                                <div class="flow-step pl-8 pb-4"><strong>Install Apps:</strong> Get Termux, Termux:Tasker, and Termux:API from F-Droid.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Setup Termux:</strong> Grant storage access and install git & openssh packages.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure SSH:</strong> Generate an SSH key in Termux and add the public key to your GitHub account.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Clone Vault:</strong> Use `git clone` in Termux to download your vault to your device.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Automate with Tasker:</strong> Import a pre-made Tasker project to trigger sync scripts on events like opening or closing the Obsidian app.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="clients-content" class="tab-pane hidden">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 2: Dedicated Android Git Clients (MGit/PuppyGit)</h4>
+                    <p class="mb-6 text-slate-600">A user-friendly alternative to the command line, offering a graphical interface for Git operations with varying degrees of automation.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Users who prefer a GUI and want a simpler setup than Termux, with good automation options (especially PuppyGit).</p>
+                           <p class="mt-2"><strong>Pros:</strong> GUI-driven and easier to set up. PuppyGit offers good automation (sync on app open/close). No command line needed for daily use.</p>
+                           <p class="mt-2"><strong>Cons:</strong> MGit is mostly manual (requires button presses to sync). Less powerful than the full Termux setup.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                                <div class="flow-step pl-8 pb-4"><strong>Install App:</strong> Get PuppyGit or MGit from F-Droid/Play Store.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Clone/Import Vault:</strong> Use the app's GUI to clone your remote repository or import an existing local one.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure Auth:</strong> Add your SSH key or a GitHub Personal Access Token in the app's settings.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure Automation (PuppyGit):</strong> Enable the accessibility service to allow automated pull/push when Obsidian starts or stops.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Sync Manually (MGit):</strong> Open the app and use the pull/push buttons to sync your vault as needed.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="plugin-content" class="tab-pane hidden">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 3: Obsidian Git Plugin on Mobile</h4>
+                    <p class="mb-6 text-slate-600">Uses the built-in community plugin to sync. While convenient on desktop, it's highly experimental and unstable on mobile devices.</p>
+                     <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Users with very small vaults who are willing to tolerate instability for the sake of an all-in-one solution. Generally NOT recommended for serious use on Android.</p>
+                           <p class="mt-2"><strong>Pros:</strong> Easiest setup, as it's just a plugin. All operations are inside Obsidian.</p>
+                           <p class="mt-2"><strong>Cons:</strong> Officially "very unstable" on mobile. Poor performance with larger vaults, frequent crashes, and sync failures. Relies on a less efficient JS-based Git implementation.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                               <div class="flow-step pl-8 pb-4"><strong>Clone Vault:</strong> First, clone your vault onto your device using another method (like a Git client).</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Install Plugin:</strong> In Obsidian mobile, go to Community Plugins and install "Obsidian Git".</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Configure Auth:</strong> Enter your GitHub username and a Personal Access Token in the plugin settings.</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Sync:</strong> Use the command palette or toolbar icons within Obsidian to pull and push changes. Auto-sync is unreliable.</div>
+                               <div class="flow-step pl-8 pb-4"><strong>Troubleshoot:</strong> Be prepared for the plugin to fail, requiring you to use a more reliable method as a backup.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="api-content" class="tab-pane hidden">
+                    <h4 class="text-2xl font-bold mb-2 text-slate-900">Method 4: "Gitless" (GitHub REST API) Plugin</h4>
+                    <p class="mb-6 text-slate-600">An emerging alternative that syncs directly with GitHub's API, completely bypassing the need for a local Git installation.</p>
+                     <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Summary</h5>
+                           <p><strong>Best for:</strong> Users who want a simple, GitHub-only solution and have small vaults. A promising but still new and potentially limited option.</p>
+                           <p class="mt-2"><strong>Pros:</strong> Very simple setup, no Git installation needed at all. Potentially more stable than the Obsidian Git plugin on mobile.</p>
+                           <p class="mt-2"><strong>Cons:</strong> In beta, limited to GitHub only. Subject to API rate limits and file size restrictions (e.g., ~7MB file limit) that could be an issue for larger vaults.</p>
+                        </div>
+                        <div>
+                           <h5 class="font-semibold text-lg mb-2 text-slate-800">Simplified Workflow</h5>
+                           <div class="space-y-4">
+                                <div class="flow-step pl-8 pb-4"><strong>Install Plugin:</strong> Find and install the API-based sync plugin via the community plugins browser in Obsidian.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Configure Auth:</strong> Generate a GitHub Personal Access Token and enter it into the plugin's settings.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Link Repository:</strong> Enter the username and repository name you want to sync with.</div>
+                                <div class="flow-step pl-8 pb-4"><strong>Sync:</strong> The plugin will handle syncing in the background using API calls.</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="compare" class="mb-16">
+            <h3 class="text-3xl font-bold text-center mb-8 text-slate-800">Comparative Analysis</h3>
+             <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                <div class="chart-container">
+                    <canvas id="methodComparisonChart"></canvas>
+                </div>
+                <p class="text-center text-sm text-slate-500 mt-4">Hover over the points on the chart for more details. Higher scores are better (except for Setup Complexity).</p>
+            </div>
+        </section>
+
+        <section id="practices">
+            <h3 class="text-3xl font-bold text-center mb-8 text-slate-800">Essential Best Practices</h3>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Handle Merge Conflicts</h4>
+                    <p class="text-slate-600">Pull changes frequently before you start working. Add `*.md merge=union` to a `.gitattributes` file in your vault's root. This tells Git to automatically merge most note changes, saving you from manual fixes.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Manage the `.obsidian` folder</h4>
+                    <p class="text-slate-600">This folder stores settings. To avoid conflicts, add device-specific files like `workspace.json`, `workspace-mobile.json`, and `plugins/obsidian-git/data.json` to your `.gitignore` file. This lets you have different layouts and plugins active on desktop vs. mobile.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-xl font-semibold mb-2 text-slate-800">Prioritize Security</h4>
+                    <p class="text-slate-600">Use SSH keys over Personal Access Tokens (PATs) for better security. Protect your SSH key with a strong passphrase. Always enable Two-Factor Authentication (2FA) on your GitHub account to add a critical layer of protection.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-16">
+        <div class="container mx-auto px-4 py-6 text-center">
+            <p>Interactive Guide created based on community research and best practices.</p>
+            <p class="text-sm text-slate-400 mt-1">This is not an official Obsidian or GitHub resource.</p>
+        </div>
+    </footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const chartData = {
+        labels: ['Reliability', 'Performance', 'Full Automation', 'Ease of Use', 'Low Complexity'],
+        datasets: [
+            {
+                label: 'Termux + Tasker',
+                data: [5, 5, 5, 2, 1],
+                fill: true,
+                backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                borderColor: 'rgb(14, 165, 233)',
+                pointBackgroundColor: 'rgb(14, 165, 233)',
+            },
+            {
+                label: 'PuppyGit Client',
+                data: [4, 4, 4, 4, 3],
+                fill: true,
+                backgroundColor: 'rgba(234, 179, 8, 0.2)',
+                borderColor: 'rgb(234, 179, 8)',
+                pointBackgroundColor: 'rgb(234, 179, 8)',
+            },
+             {
+                label: 'Obsidian Git Plugin',
+                data: [1, 1, 2, 3, 4],
+                fill: true,
+                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                borderColor: 'rgb(239, 68, 68)',
+                pointBackgroundColor: 'rgb(239, 68, 68)',
+            }
+        ]
+    };
+
+    const chartConfig = {
+        type: 'radar',
+        data: chartData,
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#e2e8f0' },
+                    grid: { color: '#e2e8f0' },
+                    pointLabels: {
+                        font: { size: 14, weight: 'bold' },
+                        color: '#475569'
+                    },
+                    ticks: {
+                        backdropColor: '#f8fafc',
+                        color: '#64748b',
+                        stepSize: 1
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 5
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#334155' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.r !== null) {
+                                label += context.parsed.r + '/5';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    
+    const ctx = document.getElementById('methodComparisonChart').getContext('2d');
+    new Chart(ctx, chartConfig);
+
+
+    const tabs = document.querySelectorAll('.tab');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(item => item.classList.remove('active'));
+            tab.classList.add('active');
+
+            const target = tab.getAttribute('data-tab');
+            tabPanes.forEach(pane => {
+                if (pane.id === `${target}-content`) {
+                    pane.classList.remove('hidden');
+                } else {
+                    pane.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+    const questions = document.getElementById('questions');
+    const recommendationPlaceholder = document.getElementById('recommendation-placeholder');
+    const recommendationResult = document.getElementById('recommendation-result');
+    const recommendationTitle = document.getElementById('recommendation-title');
+    const recommendationDescription = document.getElementById('recommendation-description');
+
+    const recommendations = {
+        termux: {
+            title: 'Termux + Tasker',
+            description: 'This is the most powerful and reliable method. It requires command-line knowledge but provides unparalleled background automation.'
+        },
+        clients: {
+            title: 'Dedicated Git Client (PuppyGit)',
+            description: 'A great balance of ease-of-use and power. PuppyGit provides good automation through a graphical interface, making it much simpler than Termux.'
+        },
+        plugin: {
+            title: 'Obsidian Git Plugin',
+            description: 'The simplest to set up, but also the most unstable on mobile. Recommended only for experiments or very small vaults where reliability is not critical.'
+        }
+    };
+
+    questions.addEventListener('change', () => {
+        const techComfort = document.querySelector('input[name="techComfort"]:checked');
+        const automation = document.querySelector('input[name="automation"]:checked');
+
+        if (techComfort && automation) {
+            let recommendedMethod;
+
+            if (techComfort.value === 'high' || automation.value === 'high') {
+                recommendedMethod = 'termux';
+            } else if (techComfort.value === 'medium' && automation.value === 'medium') {
+                recommendedMethod = 'clients';
+            } else if (techComfort.value === 'low' && automation.value === 'low') {
+                recommendedMethod = 'clients';
+            } else if (techComfort.value === 'medium' || automation.value === 'medium'){
+                recommendedMethod = 'clients';
+            } else {
+                recommendedMethod = 'plugin';
+            }
+
+            recommendationTitle.textContent = recommendations[recommendedMethod].title;
+            recommendationDescription.textContent = recommendations[recommendedMethod].description;
+            recommendationPlaceholder.classList.add('hidden');
+            recommendationResult.classList.remove('hidden');
+        }
+    });
+    
+    const sections = document.querySelectorAll('main section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.3
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+
+});
+</script>
+
+</body>
+</html>
+                recommendedMethod = 'clients';
+            } else {
+                recommendedMethod = 'plugin';
+            }
+
+            recommendationTitle.textContent = recommendations[recommendedMethod].title;
+            recommendationDescription.textContent = recommendations[recommendedMethod].description;
+            recommendationPlaceholder.classList.add('hidden');
+            recommendationResult.classList.remove('hidden');
+        }
+    });
+    
+    const sections = document.querySelectorAll('main section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.3
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+
+});
+</script>
+
+</body>
+</html>
+
