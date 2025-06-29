@@ -254,5 +254,103 @@ Based on this analysis, the following recommendations are provided:
   * **Always prioritize security:** Employ SSH keys with strong passphrases over Personal Access Tokens where possible, and ensure all authentication credentials are managed securely, ideally with Two-Factor Authentication enabled for GitHub.
   * **Implement `.gitignore` and `.gitattributes` from the outset:** Configure these files to prevent common merge conflicts, especially for device-specific Obsidian configuration files, thereby streamlining the multi-device workflow.
   * **Stay updated:** Regularly update Obsidian, its community plugins, and any chosen Android Git clients to benefit from bug fixes, performance improvements, and new features.# obsidianandriodgitsync
-# obsidianandriodgitsync
-# obsidianandriodgitsync
+
+
+## Sources
+elvisvan.hashnode.dev
+Sync notes on Android iOS MacOS Windows Linux with Obsidian using Git - Elvis Van's Blog
+ 
+
+habr.com
+How to Sync Obsidian Notes Across Devices for Free Using GitHub - Habr
+ 
+
+forum.obsidian.md
+Obsidian <---> GitHub Sync Plugin with Mobile support - Share & showcase
+ 
+
+greghilston.com
+How I Use Obsidian Mobile With Git On Android - Greg Hilston
+ 
+
+obsidian-bloger.pages.dev
+First-Time Obsidian Git Setup: Complete Guide
+ 
+
+help.obsidian.md
+Sync settings and selective syncing - Obsidian Help
+ 
+
+publish.obsidian.md
+Start here - Git Documentation - Obsidian Publish
+ 
+
+willguimont.github.io
+Another Way To Sync Obsidian vaults to Android using Git | William ...
+ 
+
+reddit.com
+Obsidian Sync vs. Obsidian Git : r/ObsidianMD - Reddit
+ 
+
+github.com
+Vinzent03/obsidian-git: Integrate Git version control with ... - GitHub
+ 
+
+github.com
+DovieW/obsidian-android-sync: Automated Obsidian sync ... - GitHub
+ 
+
+samgalope.dev
+SSH on Termux Is the Mobile Hack No One Talks About—Until They Need It - DevDigest
+ 
+
+samgalope.dev
+Secure Your Termux Environment Before Hackers Exploit It - DevDigest
+ 
+
+forum.obsidian.md
+Sync solutions - Help - Obsidian Forum
+ 
+
+news.ycombinator.com
+FWIW - the sync service provided by Obsidian is *really* worth paying for. Dropb... | Hacker News
+ 
+
+obsidian.md
+Obsidian Sync
+ 
+
+obsidian.md
+Pricing - Obsidian
+ 
+
+dev.to
+Managing Merge Conflicts in Git: Strategies and Best Practices - DEV Community
+ 
+
+reddit.com
+What are some best practices when dealing with merge conflicts : r/git - Reddit
+ 
+
+help.obsidian.md
+Sync your notes across devices - Obsidian Help
+ 
+
+msfjarvis.dev
+The Obsidian Migration - One Week Later | Harsh Shandilya
+ 
+
+reddit.com
+Is it possible to use Git with Obsidian mobile? : r/ObsidianMD - Reddit
+ 
+
+reddit.com
+[Guide] Obsidian Git Sync on app opening Android : r/ObsidianMD - Reddit
+ 
+
+github.com
+catpuppyapp/PuppyGit: An android git client - GitHub
+
+
+
